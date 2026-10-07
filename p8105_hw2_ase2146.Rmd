@@ -1,7 +1,7 @@
 ---
 title: "Homework 1"
 author: "Ali Early"
-output: github_document
+output: PDF
 ---
 
 ## Problem 0
