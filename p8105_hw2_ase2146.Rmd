@@ -111,10 +111,15 @@ mr_trash_wheel =
 
 
 prof_trash_wheel = 
-  read_excel("data:/202610 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1) |> 
+  read_excel(
+    "data:/202610 Trash Wheel Collection Data.xlsx", 
+    sheet = "Professor Trash Wheel", 
+    skip = 1
+  ) |> 
   janitor::clean_names() |> 
   filter(!is.na(dumpster)) |> 
   mutate(
+    year = as.numeric(year),
     plastic_bottles = suppressWarnings(as.numeric(plastic_bottles)),
     trash_wheel = "Professor Trash Wheel"
   )
@@ -129,7 +134,6 @@ gwynnda_trash_wheel =
   janitor::clean_names() |> 
   filter(!is.na(dumpster)) |> 
   mutate(
-    dumpster = as.numeric(dumpster),
     year = as.numeric(year),
     trash_wheel = "Gwynnda"
   )
@@ -137,3 +141,30 @@ gwynnda_trash_wheel =
 trash_wheel_tidy = 
   bind_rows(mr_trash_wheel, prof_trash_wheel, gwynnda_trash_wheel)
 ```
+
+### Paragraph and inline R
+The dataset presents trash_wheel_tidy with 1,269 observations (i.e., dumpster numbers). Some columns across the three sheets of interest ("Mr. Trash Wheel," "Professor Trash Wheel," and "Gwynnda the Good Wheel") include columns related to the Healthy Harbor initiative, such as `dumpster`, `month`, `year`, `weight`, `volume`, `plastic`, `polystyrene`, `cigarettes`, `glass`, `plastic`, `wrappers`, `sports`, and `homes`.Most of these variables are numeric but not all such as month, year, and date of data collection. 
+
+```{r}
+total_prof_weight = 
+  trash_wheel_tidy |> 
+  filter(trash_wheel == "Professor Trash Wheel") |> 
+  summarize(total_weight = sum(weight_tons, na.rm = TRUE)) |> 
+  pull(total_weight)
+
+
+gwynnda_june_2022_cig_butts = 
+  trash_wheel_tidy |> 
+  filter(trash_wheel == "Gwynnda", month == "June", year == 2022) |> 
+  summarize(total_butts = sum(cigarette_butts, na.rm = TRUE)) |> 
+  pull(total_butts)
+```
+
+1. What was the total weight of trash collected by Professor Trash Wheel? 
+18,120
+
+
+2. What was the total number of cigarette butts collected by Gwynnda in June 2022?
+294.96
+
+
