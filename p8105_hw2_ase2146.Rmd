@@ -37,7 +37,7 @@ nyc_transit_data =
     )
 ```
 
-## Paragraph on the process
+### Paragraph on the process
 This dataset presents findings related to NYC subway entry and exit points, along with other critical pieces of information about various subway station that a traveler may find useful. Some variables including the subway line, station details (e.g., name, lat, long.), routes, entrance type (e.g., stairs), entry and exit availability, vending options, and ADA compliance. Some of the variables are characters (e.g., station name, line), others are numerical (e.g., lat., long.), and others are logical (e.g., ADA). Additionally, the overall dataset has 1,868 rows and 19 columns. My cleaning process involved using the "janitor" code along with "select" to shift the order of the columns for ease of viewing. My cleaning process also involved using janitor::clean_names() to adjust column names, select() to keep relevant variables for the homework, and change entry from "YES"/"NO" into TRUE/FALSE. The data are not completely tidy yet because the routes are spread out across columns. 
 
 ### Questions answered by the dataset
@@ -91,3 +91,49 @@ a_train_stations |>
 ```
 
 
+
+## Problem 2
+library(readxl)
+```{r}
+mr_trash_wheel =
+  read_excel("data:/202610 Trash Wheel Collection Data.xlsx",
+    sheet = "Mr. Trash Wheel",
+    skip = 1
+  ) |> 
+  janitor::clean_names() |> 
+  select(-starts_with("unnamed")) |> 
+  filter(!is.na(dumpster)) |> 
+  mutate(
+    sports_balls = as.integer(round(sports_balls)),
+    year = as.numeric(year),
+    trash_wheel = "Mr. Trash Wheel"
+  )
+
+
+prof_trash_wheel = 
+  read_excel("data:/202610 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1) |> 
+  janitor::clean_names() |> 
+  filter(!is.na(dumpster)) |> 
+  mutate(
+    plastic_bottles = suppressWarnings(as.numeric(plastic_bottles)),
+    trash_wheel = "Professor Trash Wheel"
+  )
+
+
+gwynnda_trash_wheel = 
+  read_excel(
+    "data:/202610 Trash Wheel Collection Data.xlsx",
+    sheet = "Gwynnda the Good Wheel of the W",
+    skip = 1
+  ) |> 
+  janitor::clean_names() |> 
+  filter(!is.na(dumpster)) |> 
+  mutate(
+    dumpster = as.numeric(dumpster),
+    year = as.numeric(year),
+    trash_wheel = "Gwynnda"
+  )
+
+trash_wheel_tidy = 
+  bind_rows(mr_trash_wheel, prof_trash_wheel, gwynnda_trash_wheel)
+```
