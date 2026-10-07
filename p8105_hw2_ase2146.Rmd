@@ -1,7 +1,7 @@
 ---
-title: "Homework 1"
+title: "Homework 2"
 author: "Ali Early"
-output: PDF
+output: github_document
 ---
 
 ## Problem 0
@@ -10,9 +10,10 @@ As evidenced throughout this homework.
 
 
 ## Problem 1 
-`library(readr)`
+library(tidyverse)
 
-```{r}
+```{r, echo = FALSE}
+library(tidyverse)
 nyc_transit_data = 
   read_csv("data:/NYC_Transit.csv") |>
   janitor::clean_names() |>
@@ -26,15 +27,15 @@ nyc_transit_data =
     vending,
     entrance_type,
     ada
-    ) |>
-    mutate(
-      across(starts_with("route"), as.character),
-      entry = case_match(
-        entry,
-        "YES" ~ TRUE,
-        "NO" ~ FALSE
-      )
+  ) |>
+  mutate(
+    across(starts_with("route"), as.character),
+    entry = case_match(
+      entry,
+      "YES" ~ TRUE,
+      "NO" ~ FALSE
     )
+  )
 ```
 
 
@@ -44,7 +45,7 @@ This dataset presents findings related to NYC subway entry and exit points, alon
 
 ### Questions answered by the dataset
 1. How many distinct stations are there? 
-```{r}
+```{r, echo = FALSE}
 distinct_stations = 
   nyc_transit_data |>
   distinct(line, station_name, .keep_all = TRUE)
@@ -53,15 +54,15 @@ nrow(distinct_stations)
 
 
 2. How many stations are ADA compliant?
-```{r}
+```{r, echo = FALSE}
 distinct_stations |>
   filter(ada == TRUE) |>
   nrow()
 ```
 
 
-3. What proportion of station entrances / exits without vending allow entrance?
-```{r}
+3. What proportion of station entrances / exits without vending allow entrance? **0.38**
+```{r, echo = FALSE}
 nyc_transit_data |>
   filter(vending == "NO") |>
   summarize(prop_entry = mean(entry))
@@ -69,7 +70,7 @@ nyc_transit_data |>
 
 
 4. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
-```{r}
+```{r, echo = FALSE}
 nyc_transit_tidy = 
   nyc_transit_data |>
   pivot_longer(
@@ -96,9 +97,9 @@ a_train_stations |>
 
 
 ## Problem 2
-`library(readxl)`
-
-```{r}
+library(readxl)
+```{r, echo = FALSE}
+library(readxl)
 mr_trash_wheel =
   read_excel("data:/202610 Trash Wheel Collection Data.xlsx",
     sheet = "Mr. Trash Wheel",
@@ -152,7 +153,7 @@ trash_wheel_tidy =
 ### Paragraph and in line R
 The dataset presents `trash_wheel_tidy` with 1,269 observations (i.e., dumpster numbers). Some columns across the three sheets of interest ("Mr. Trash Wheel," "Professor Trash Wheel," and "Gwynnda the Good Wheel") include columns related to the Healthy Harbor initiative, such as `dumpster`, `month`, `year`, `weight`, `volume`, `plastic`, `polystyrene`, `cigarettes`, `glass`, `plastic`, `wrappers`, `sports`, and `homes`. Most of these variables are numeric but not all such as month, year, and date of data collection. 
 
-```{r}
+```{r, echo = FALSE}
 total_prof_weight = 
   trash_wheel_tidy |> 
   filter(trash_wheel == "Professor Trash Wheel") |> 
@@ -167,18 +168,16 @@ gwynnda_june_2022_cig_butts =
   pull(total_butts)
 ```
 
-1. What was the total weight of trash collected by Professor Trash Wheel? 
-294.96 tons
+1. What was the total weight of trash collected by Professor Trash Wheel? **294.96 tons**
 
 
-2. What was the total number of cigarette butts collected by Gwynnda in June 2022?
-18,120 butts
+2. What was the total number of cigarette butts collected by Gwynnda in June 2022? **18,120 butts**
 
 
 
 
 ## Problem 3
-```{r}
+```{r, echo = FALSE}
 mci_baseline = 
   read_csv("data:/MCI_baseline.csv", skip = 1) |> 
   janitor::clean_names() |> 
@@ -193,10 +192,9 @@ mci_baseline =
       1 ~ "carrier",
       0 ~ "non-carrier"
     ),
-    age_at_onset = suppressWarnings(as.numeric(age_at_onset))
+    age_at_onset = as.numeric(age_at_onset)
   ) |> 
   filter(is.na(age_at_onset) | age_at_onset > current_age)
-
 
 
 mci_amyloid = 
@@ -227,8 +225,8 @@ write_csv(mci_combined, "data:/mci_combined.csv")
 I first downloaded the datasets then imported it using the `read_csv` code to read the files. I also used the `janitor` code like the last problem to clean the data. Next, I made better/cleaner variables of sex (male-female) and carriers (carriers-non-carriers). As for relevant features, both have quite a bit of missing data which is represented by "NA" or blanks. 
 
 
-2. How many participants were recruited, and of these how many develop MCI?
-```{r}
+2. How many participants were recruited, and of these how many develop MCI? **483 total, but really 479 participants left.**
+```{r, echo = FALSE}
 n_recruited = nrow(read_csv("data:/MCI_baseline.csv", skip = 1))
 
 n_developed_mci = 
@@ -236,31 +234,27 @@ n_developed_mci =
   filter(!is.na(age_at_onset)) |> 
   nrow()
 ```
-483 total, nut really 479 participants left
 
 
 
-3. What is the average baseline age? 
-```{r}
+3. What is the average baseline age? **65.03 years old**
+```{r, echo = FALSE}
 avg_baseline_age = 
   mci_baseline |> 
   summarize(mean_age = mean(current_age, na.rm = TRUE)) |> 
   pull(mean_age)
 ```
 
-65.03 years old
 
 
-
-4. What proportion of women in the study are APOE4 carriers?
-```{r}
+4. What proportion of women in the study are APOE4 carriers? **0.3 or 30% are women in the study are APOE4 carriers.**
+```{r, echo = FALSE}
 prop_female_carriers = 
   mci_baseline |> 
   filter(sex == "female") |> 
   summarize(prop = mean(apoe4 == "carrier")) |> 
   pull(prop)
 ```
-0.3 or 30% are women in the study are APOE4 carriers.
 
 
 
@@ -273,13 +267,12 @@ I first downloaded the datasets then imported them using the `read_csv` code wit
 
 
 3. Comparing ids using `anti_join()` shows that eight participants were only in the baseline dataset. This could be due to loss to follow-up. Also, 16 participants were only in the amyloid dataset.Combining the datasets `(inner_join)` maintains the 471 participants who are in both files. The total dataset has 2,196 total observations.
-
 `write_csv(mci_combined, "data:/mci_combined.csv")`
 
 
-```{r}
+```{r, echo = FALSE}
 mci_amyloid = 
-  read_csv("data/mci_amyloid.csv", skip = 1) |> 
+  read_csv("data:/mci_amyloid.csv", skip = 1) |> 
   janitor::clean_names() |> 
   rename(id = study_id) |> 
   pivot_longer(
