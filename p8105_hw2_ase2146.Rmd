@@ -5,8 +5,89 @@ output: github_document
 ---
 
 ## Problem 0
-As evidenced throughout this file.
+As evidenced throughout this assignment.
 
- 
+
 
 ## Problem 1 
+library(readr)
+
+```{r}
+nyc_transit_data = 
+  read_csv("data:/NYC_Transit.csv") |>
+  janitor::clean_names() |>
+  select(
+    line,
+    station_name,
+    station_latitude,
+    station_longitude,
+    starts_with("route"),
+    entry,
+    vending,
+    entrance_type,
+    ada
+    ) |>
+    mutate(
+      across(starts_with("route"), as.character),
+      entry = case_match(
+        entry,
+        "YES" ~ TRUE,
+        "NO" ~ FALSE
+      )
+    )
+```
+
+## Paragraph on the process
+This dataset presents findings related to NYC subway entry and exit points, along with other critical pieces of information about various subway station that a traveler may find useful. Some variables including the subway line, station details (e.g., name, lat, long.), routes, entrance type (e.g., stairs), entry and exit availability, vending options, and ADA compliance. Some of the variables are characters (e.g., station name, line), others are numerical (e.g., lat., long.), and others are logical (e.g., ADA). Additionally, the overall dataset has 1,868 rows and 19 columns. My cleaning process involved using the "janitor" code along with "select" to shift the order of the columns for ease of viewing. My cleaning process also involved using janitor::clean_names() to adjust column names, select() to keep relevant variables for the homework, and change entry from "YES"/"NO" into TRUE/FALSE. The data are not completely tidy yet because the routes are spread out across columns. 
+
+### Questions answered by the dataset
+1. How many distinct stations are there? 
+```{r}
+distinct_stations = 
+  nyc_transit_data |>
+  distinct(line, station_name, .keep_all = TRUE)
+nrow(distinct_stations)
+```
+
+
+2. How many stations are ADA compliant?
+```{r}
+distinct_stations |>
+  filter(ada == TRUE) |>
+  nrow()
+```
+
+
+3. What proportion of station entrances / exits without vending allow entrance?
+```{r}
+nyc_transit_data |>
+  filter(vending == "NO") |>
+  summarize(prop_entry = mean(entry))
+```
+
+
+4. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
+```{r}
+nyc_transit_tidy = 
+  nyc_transit_data |>
+  pivot_longer(
+    cols = starts_with("route"),
+    names_to = "route_number",
+    names_prefix = "route",
+    values_to = "route_name",
+    values_drop_na = TRUE
+  )
+
+a_train_stations = 
+  nyc_transit_tidy |>
+  filter(route_name == "A") |>
+  distinct(line, station_name, .keep_all = TRUE)
+
+nrow(a_train_stations)
+
+a_train_stations |>
+  filter(ada == TRUE) |>
+  nrow()
+```
+
+
